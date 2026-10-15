@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', Arial;
+      padding: 20px;
+      width: 420px;
+      background: #f5f5f7;
+    }
+    h2 { font-size: 18px; margin-bottom: 15px; color: #1d1d1f; }
+    label { 
+      display: block;
+      font-size: 13px;
+      color: #555;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    input { 
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d2d2d7;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+      margin-bottom: 15px;
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    #start {
+      background: #0071e3;
+      color: white;
+    }
+    #start:hover { background: #0077ed; }
+    #start:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    #stop {
+      background: #f5f5f7;
+      color: #1d1d1f;
+      border: 1px solid #d2d2d7;
+    }
+    #stop:hover { background: #ececf0; }
+    #stop:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .debug-section {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #d2d2d7;
+    }
+    
+    .debug-buttons {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    
+    .debug-buttons button {
+      flex: none;
+      padding: 8px 12px;
+      font-size: 12px;
+      width: auto;
+      background: #e8f0ff;
+      color: #0071e3;
+      border: 1px solid #90caf9;
+    }
+    
+    .debug-buttons button:hover { background: #d4e3ff; }
+    
+    .log-section {
+      margin-top: 20px;
+      border-top: 1px solid #d2d2d7;
+      padding-top: 15px;
+    }
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .log-header h3 {
+      font-size: 13px;
+      color: #555;
+      font-weight: 600;
+    }
+    .log-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .log-actions button {
+      flex: none;
+      padding: 6px 10px;
+      font-size: 12px;
+      width: auto;
+      background: #f5f5f7;
+      color: #0071e3;
+      border: 1px solid #d2d2d7;
+    }
+    .log-actions button:hover { background: #ececf0; }
+    
+    #logBox {
+      background: white;
+      border: 1px solid #d2d2d7;
+      border-radius: 6px;
+      padding: 10px;
+      height: 150px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #1d1d1f;
+      line-height: 1.4;
+    }
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+    .log-time {
+      color: #999;
+      font-weight: bold;
+    }
+    .log-success { color: #3d6e3f; }
+    .log-error { color: #6f322c; }
+    .log-info { color: #1565c0; }
+    .log-warning { color: #9c6c00; }
+    
+    #status {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      text-align: center;
+      display: none;
+    }
+    #status.success {
+      display: block;
+      background: #ecf5e8;
+      color: #3d6e3f;
+      border: 1px solid #b8e6b8;
+    }
+    #status.error {
+      display: block;
+      background: #fce8e6;
+      color: #6f322c;
+      border: 1px solid #f4c7c3;
+    }
+    #status.running {
+      display: block;
+      background: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #90caf9;
+    }
+  </style>
+</head>
+<body>
+  <h2>🍎 Apple Renew 반복 매크로</h2>
+  
+  <label>반복 횟수 (0 = 중지할 때까지):</label>
+  <input id="count" type="number" value="5" min="0" max="10000" step="1">
+  
+  <label>반복 완료 후 대기 (초):</label>
+  <input id="delay" type="number" value="3" min="0.5" step="0.5" max="30">
+  
+  <div class="button-group">
+    <button id="start">시작 ▶️</button>
+    <button id="stop" disabled>중지 ⏹️</button>
+  </div>
+  
+  <div id="status"></div>
+  
+  <!-- 디버그 섹션 -->
+  <div class="debug-section">
+    <h3 style="font-size: 13px; margin-bottom: 10px;">🔧 디버그</h3>
+    <div class="debug-buttons">
+      <button id="testContent">Content 확인</button>
+      <button id="testDevTools">개발자도구</button>
+      <button id="testLog">로그 테스트</button>
+    </div>
+    <div id="debugStatus" style="font-size: 12px; color: #999;"></div>
+  </div>
+  
+  <!-- 로그 섹션 -->
+  <div class="log-section">
+    <div class="log-header">
+      <h3>📋 실행 로그</h3>
+      <div class="log-actions">
+        <button id="clearLog">삭제</button>
+        <button id="downloadLog">다운로드</button>
+      </div>
+    </div>
+    <div id="logBox"></div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

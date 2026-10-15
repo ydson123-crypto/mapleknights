@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Apple Renew 매크로",
+  "version": "1.1",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": [
+    "https://apple.com/*",
+    "https://*.apple.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://appleid.apple.com/*",
+        "https://*.apple.com/*",
+        "https://apple.com/*"
+      ],
+      "js": ["content.js"],
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ]
+}
